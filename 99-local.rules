@@ -1,0 +1,6 @@
+
+# Odrive
+KERNEL=="ttyACM*", ATTRS{idVendor}=="1209", ATTRS{idProduct}=="0d3[0-9]", SYMLINK+="ttyACM_odrive"
+
+# Nucleo-F446RE
+KERNEL=="ttyACM*", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="374b", SYMLINK+="ttyACM_f446re"
