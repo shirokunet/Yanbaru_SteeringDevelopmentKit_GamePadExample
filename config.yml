@@ -1,0 +1,3 @@
+---
+log_level: 'debug'
+stw_baud: 115200
