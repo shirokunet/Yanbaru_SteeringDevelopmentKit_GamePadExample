@@ -81,6 +81,7 @@ class SerilaMp():
 
         # communication variables
         self.request_mode = Value(ctypes.c_int, Action_t.ACTION_NONE.value)
+        self.target_angle = Value(ctypes.c_double, 0.0)
 
         self.rx_stw_mode = Value(ctypes.c_int, 0)
         self.rx_actual_angle_lpf = Value(ctypes.c_double, 0.0)
@@ -101,6 +102,9 @@ class SerilaMp():
         except:
             self._logger.error('Serial COM Port Open Error')
             return
+
+        # z1
+        self._target_angle_z1 = 0.0
 
         # start process
         self.is_run.value = True
@@ -158,6 +162,14 @@ class SerilaMp():
                     self._logger.info('ACTION_IDLE')
                     self._ser.write(b'i\n')
                     self.request_mode.value = Action_t.ACTION_NONE.value
+
+                elif self.request_mode.value == Action_t.ACTION_VELOCITY_CTRL.value \
+                        and self.target_angle.value != self._target_angle_z1:
+                    self._logger.info('ACTION_VELOCITY_CTRL {}'.format(self.target_angle.value))
+                    self._ser.write('p,{}\n\r'.format(int(self.target_angle.value * 1000.0)).encode())
+                    # self._ser.write(b'p,360000\n\r')
+                    self.request_mode.value = Action_t.ACTION_NONE.value
+                    self._target_angle_z1 = self.target_angle.value
 
                 else:
                     self.request_mode.value = Action_t.ACTION_NONE.value
@@ -245,6 +257,7 @@ def main():
                 pass
             elif gp_data['gp_code'] == '0x3':
                 serial_mp.request_mode.value = Action_t.ACTION_VELOCITY_CTRL.value
+                serial_mp.target_angle.value = float(gp_data['gp_value']) / 32768.0 * 360.0 * 3.0
             elif is_up(gp_data, gp_data_z1, '0x13c'):
                 serial_mp.request_mode.value = Action_t.ACTION_CALIBRATION.value
             elif is_up(gp_data, gp_data_z1, '0x13b'):
