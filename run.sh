@@ -6,5 +6,5 @@ do
     killall -9 python3
     python3 main.py
     printf '\n'
-    sleep 1
+    sleep 3
 done
