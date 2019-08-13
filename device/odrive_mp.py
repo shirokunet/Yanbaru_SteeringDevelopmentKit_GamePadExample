@@ -36,7 +36,7 @@ class OdriveMp():
     def __init__(
             self, logger,
             port='/dev/ttyACM_odrive', baud=115200, timeout=0.1,
-            speed_lim=40000.0, current_lim=70.0):
+            speed_lim=40000.0, current_lim=70.0, lpf_gain=0.05):
         self._logger = logger
         self.is_run = Value(ctypes.c_bool, False)
         self._speed_lim = speed_lim
@@ -56,15 +56,18 @@ class OdriveMp():
             self._ser.write(b'\n')
             # set limit
             for i in range(0, 2):
-                self._ser.write(('w axis{}.controller.config.vel_limit {}\n'.format(i, speed_lim)).encode())
                 self._ser.write(('w axis{}.motor.config.current_lim {}\n'.format(i, current_lim)).encode())
+                self._ser.write(('w axis{}.controller.config.vel_limit {}\n'.format(i, speed_lim)).encode())
+                # disable vel_limit_tolerance
+                self._ser.write(('w axis{}.controller.config.vel_limit_tolerance {}\n'.format(i, 0)).encode())
         except:
             self._logger.error('Odrive COM Port Open Error')
             return
 
-        # z1
-        self._target_angle_0_z1 = 0.0
-        self._target_angle_1_z1 = 0.0
+        # lpf
+        self._target_angle_0_lpf = 0.0
+        self._target_angle_1_lpf = 0.0
+        self._lpf_gain = lpf_gain
 
         # start process
         self.is_run.value = True
@@ -99,19 +102,20 @@ class OdriveMp():
                     self.request_mode.value = Action_t.ACTION_NONE.value
 
                 elif self.request_mode.value == Action_t.ACTION_VELOCITY_CTRL.value:
-                    if self.target_angle_0.value != self._target_angle_0_z1:
-                        target_step = self.target_angle_0.value / 360.0 * 8192.0 * 10.0
+                    if abs(self.target_angle_0.value - self._target_angle_0_lpf) > 1.0:
+                        self._target_angle_0_lpf = self.target_angle_0.value * self._lpf_gain \
+                            + self._target_angle_0_lpf * (1 - self._lpf_gain)
+                        target_step = self._target_angle_0_lpf / 360.0 * 8192.0 * 10.0
                         self._logger.info('ACTION_VELOCITY_CTRL_0 {}'.format(self.target_angle_0.value))
                         self._ser.write(('p {} {} {} {}\n'.format(
                             0, target_step, 0.0, 0.0)).encode())
-                        self._target_angle_0_z1 = self.target_angle_0.value
-
-                    elif self.target_angle_1.value != self._target_angle_1_z1:
-                        target_step = self.target_angle_1.value / 360.0 * 8192.0 * 10.0
+                    if abs(self.target_angle_1.value - self._target_angle_1_lpf) > 1.0:
+                        self._target_angle_1_lpf = self.target_angle_1.value * self._lpf_gain \
+                            + self._target_angle_1_lpf * (1 - self._lpf_gain)
+                        target_step = self._target_angle_1_lpf / 360.0 * 8192.0 * 10.0
                         self._logger.info('ACTION_VELOCITY_CTRL_1 {}'.format(self.target_angle_1.value))
                         self._ser.write(('p {} {} {} {}\n'.format(
                             1, target_step, 0.0, 0.0)).encode())
-                        self._target_angle_1_z1 = self.target_angle_1.value
                     self.request_mode.value = Action_t.ACTION_NONE.value
 
                 else:
