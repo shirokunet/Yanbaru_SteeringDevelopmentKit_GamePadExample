@@ -97,7 +97,7 @@ def main():
                 odrive_mp.target_angle_1.value = float(gp_data['gp_value']) / 256.0 * 360.0
 
             # debug console
-            if time_now - console_time_z1 > 0.1:
+            if time_now - console_time_z1 > cfg['debug_console_interval']:
                 console_time_z1 = time_now
                 logger_main.debug(json.dumps(gp_data))
                 logger_main.debug(json.dumps(rx_data))

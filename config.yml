@@ -1,5 +1,6 @@
 ---
-log_level: 'info' # chose 'info' or 'debug'
+log_level: 'debug' # chose 'info' or 'debug'
+debug_console_interval: 0.01
 
 nucleo_port: '/dev/ttyACM_f446re'
 nucleo_baud: 115200
