@@ -88,7 +88,10 @@ def main():
                 odrive_mp.request_mode.value = Action_t.ACTION_IDLE.value
             elif gp_data['gp_code'] == '0x3':
                 serial_mp.request_mode.value = Action_t.ACTION_VELOCITY_CTRL.value
-                serial_mp.target_angle.value = float(gp_data['gp_value']) / 32768.0 * 360.0 * 3.0
+                gp_value = float(gp_data['gp_value'])
+                if abs(gp_value) < 1024:
+                    gp_value = 0
+                serial_mp.target_angle.value = gp_value / 32768.0 * 360.0 * 3.0
             elif gp_data['gp_code'] == '0x5':
                 odrive_mp.request_mode.value = Action_t.ACTION_VELOCITY_CTRL.value
                 odrive_mp.target_angle_0.value = float(gp_data['gp_value']) / 256.0 * 360.0
