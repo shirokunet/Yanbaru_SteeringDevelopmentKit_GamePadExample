@@ -109,7 +109,7 @@ def main():
             # store z1
             gp_data_z1 = gp_data
 
-            time.sleep(0.01)
+            time.sleep(0.05)
     except KeyboardInterrupt:
         pass
 
