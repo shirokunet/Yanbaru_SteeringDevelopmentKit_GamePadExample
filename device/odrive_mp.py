@@ -36,7 +36,7 @@ class OdriveMp():
     def __init__(
             self, logger,
             port='/dev/ttyACM_odrive', baud=115200, timeout=0.1,
-            speed_lim=40000.0, current_lim=70.0, lpf_gain=0.05):
+            speed_lim=40000.0, current_lim=70.0, lpf_gain=0.05, calibration_current=10.0):
         self._logger = logger
         self.is_run = Value(ctypes.c_bool, False)
         self._speed_lim = speed_lim
@@ -56,6 +56,7 @@ class OdriveMp():
             self._ser.write(b'\n')
             # set limit
             for i in range(0, 2):
+                self._ser.write(('w axis{}.motor.config.calibration_current {}\n'.format(i, calibration_current)).encode())
                 self._ser.write(('w axis{}.motor.config.current_lim {}\n'.format(i, current_lim)).encode())
                 self._ser.write(('w axis{}.controller.config.vel_limit {}\n'.format(i, speed_lim)).encode())
                 # disable vel_limit_tolerance

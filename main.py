@@ -51,7 +51,8 @@ def main():
         gamepad_mp = GamePadMp(logger_main)
         odrive_mp = OdriveMp(
             logger_main, port=cfg['odrive_port'], baud=cfg['odrive_baud'],
-            speed_lim=cfg['odrive_speed_lim'], current_lim=cfg['odrive_current_lim'])
+            speed_lim=cfg['odrive_speed_lim'], current_lim=cfg['odrive_current_lim'],
+            calibration_current=cfg['odrive_calibration_current'])
         serial_mp = SerilaMp(logger_main, port=cfg['nucleo_port'], baud=cfg['nucleo_baud'])
         logger_main.debug('GamePad: {}'.format(gamepad_mp.is_run.value))
         logger_main.debug('Serial: {}'.format(serial_mp.is_run.value))

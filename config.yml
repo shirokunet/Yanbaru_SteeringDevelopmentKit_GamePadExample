@@ -9,3 +9,4 @@ odrive_port: '/dev/ttyACM_odrive'
 odrive_baud: 115200
 odrive_speed_lim: 80000.0
 odrive_current_lim: 70.0
+odrive_calibration_current: 10.0
