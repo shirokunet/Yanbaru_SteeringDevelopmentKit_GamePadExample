@@ -14,4 +14,4 @@
 
 
 ### Related Projects
-* [Steering](https://github.com/shirokunet/Yanbaru_SteeringDevelopmentKit)
+* [Yanbaru_SteeringDevelopmentKit](https://github.com/shirokunet/Yanbaru_SteeringDevelopmentKit)
